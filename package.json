@@ -1,0 +1,41 @@
+{
+  "name": "ple-rampas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx scripts/verify.ts",
+    "verify": "tsx scripts/verify.ts",
+    "emulators": "firebase emulators:start --import ./emulator-data --export-on-exit ./emulator-data",
+    "emulators:clear": "firebase emulators:start --import ./emulator-data",
+    "seed": "tsx scripts/seed-biblioteca.ts",
+    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes,storage"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "firebase": "^11.1.0",
+    "lucide-react": "^0.469.0",
+    "next": "^15.1.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.0",
+    "tailwind-merge": "^2.6.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.4",
+    "@types/react-dom": "^19.0.2",
+    "firebase-tools": "^13.29.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

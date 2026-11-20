@@ -1,0 +1,22 @@
+/*
+ * Portado de react-bits (TextAnimations/ShinyText).
+ *
+ * O original traz duas camadas de brilho: a @keyframes shine do CSS e o
+ * gradiente inline alimentado pelo motion. Em tema escuro as duas se somam; em
+ * tema claro o texto ficava transparente sobre fundo branco, entao aqui vem so
+ * o gradiente inline.
+ *
+ * Precisa ser inline-block: sem um box proprio, background-clip: text nao tem
+ * area para recortar e o gradiente nao aparece.
+ */
+.rb-shiny-text {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rb-shiny-text {
+    background-image: none !important;
+    -webkit-text-fill-color: currentColor !important;
+    color: inherit !important;
+  }
+}

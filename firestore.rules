@@ -1,0 +1,225 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ================= helpers =================
+    //
+    // Regra de ouro: quando o documento ja carrega o teacherId/studentId,
+    // testar resource.data direto. get() so e necessario quando o dado esta
+    // em OUTRO documento — e get() em contexto de list devolve null, o que
+    // estoura a regra com "Null value error".
+
+    function signedIn() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    // Le SO o papel, null-safe. Evita exists()+ternaria: um unico get(),
+    // e nunca devolve objeto nulo (que quebraria .role).
+    function myRole() {
+      return signedIn()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', null)
+        : null;
+    }
+
+    function isTeacher() {
+      return myRole() == 'teacher';
+    }
+
+    function isAdmin() {
+      return myRole() == 'admin';
+    }
+
+    function onlyKeysChanged(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(keys);
+    }
+
+    // Campo opcional com fallback. Acessar data.campo direto quando a chave
+    // nao existe lanca evaluation error no emulador; data.get() e o
+    // acessor null-safe correto, e NAO e a operacao de leitura de documento.
+    function field(data, key) {
+      return data.get(key, null);
+    }
+
+    // Professor dono do documento.
+    function ownedByMe(data) {
+      return isTeacher() && field(data, 'teacherId') == request.auth.uid;
+    }
+
+    // O aluno dono do documento, pelo authUid amarrado no proprio doc.
+    function isSelf(data) {
+      return signedIn() && field(data, 'authUid') == request.auth.uid;
+    }
+
+    // Leitura: professor dono ou o proprio aluno.
+    function readable(data) {
+      return ownedByMe(data) || isSelf(data) || isAdmin();
+    }
+
+    // Submissoes nao carregam authUid; o vinculo e via students/{sid}.authUid.
+    function isStudentById(sid) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/students/$(sid))
+        && get(/databases/$(database)/documents/students/$(sid)).data
+             .get('authUid', null) == request.auth.uid;
+    }
+
+    // ================= auth / perfil =================
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid;
+      // Nao deixa mexer no proprio papel (escalada de privilegio).
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && onlyKeysChanged(['displayName', 'photoUrl', 'locale', 'onboardingStep', 'lastSeenAt']);
+      allow delete: if false;
+    }
+
+    match /teachers/{tid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.auth.uid == tid;
+      allow update: if signedIn() && request.auth.uid == tid;
+      allow delete: if false;
+    }
+
+    // ================= alunos =================
+
+    match /students/{sid} {
+      allow get: if readable(resource.data);
+
+      // List NAO pode ser liberada por papel: se fosse, qualquer professor
+      // passaria em qualquer documento e uma query filtrada por outro
+      // teacherId vazaria dados. Cada doc e avaliado por posse, entao a
+      // query de outro professor volta vazia.
+      allow list: if ownedByMe(resource.data) || isSelf(resource.data) || isAdmin();
+
+      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
+
+      // Professor dono edita tudo, mas nao troca de dono nem de authUid.
+      allow update: if ownedByMe(resource.data)
+        && request.resource.data.get('teacherId', null) == resource.data.get('teacherId', null)
+        && request.resource.data.get('authUid', null) == resource.data.get('authUid', null);
+
+      // Aluno so ajusta o proprio nome e preferencias.
+      allow update: if isSelf(resource.data)
+        && onlyKeysChanged(['name', 'lastActiveAt', 'notificationPrefs']);
+
+      allow delete: if ownedByMe(resource.data);
+    }
+
+    // ================= avaliacoes diagnosticas =================
+
+    match /assessments/{aid} {
+      allow read: if readable(resource.data);
+      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if ownedByMe(resource.data);
+    }
+
+    // ================= rampas =================
+
+    match /ramps/{rid} {
+      allow read: if readable(resource.data);
+      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if ownedByMe(resource.data);
+    }
+
+    match /rampSteps/{stepId} {
+      allow read: if readable(resource.data);
+
+      allow create: if isTeacher()
+        && request.resource.data.teacherId == request.auth.uid;
+      allow delete: if ownedByMe(resource.data);
+
+      // Professor dono edita livre.
+      allow update: if ownedByMe(resource.data);
+
+      // Aluno so mexe em progresso; nao pode se marcar "done" sozinho.
+      allow update: if readable(resource.data)
+        && onlyKeysChanged(['progress', 'startedAt']);
+    }
+
+    // ================= biblioteca =================
+
+    match /contents/{cid} {
+      // Professores veem tudo; alunos so o que esta publicado.
+      allow read: if myRole() == 'teacher'
+        || (myRole() == 'student' && resource.data.get('status', null) == 'published');
+
+      allow create: if isTeacher() && request.resource.data.authorId == request.auth.uid;
+      allow update: if (signedIn() && resource.data.authorId == request.auth.uid)
+        || isAdmin(); // moderacao: deprecate / reject
+
+      allow delete: if signedIn()
+        && resource.data.authorId == request.auth.uid
+        && resource.data.get('status', null) == 'draft';
+    }
+
+    match /contentReports/{rid} {
+      allow read: if isTeacher();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // ================= tarefas =================
+
+    match /tasks/{tid} {
+      allow read: if readable(resource.data);
+      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if ownedByMe(resource.data);
+    }
+
+    match /taskSubmissions/{subId} {
+      allow read: if readable(resource.data);
+
+      // Aluno cria a propria entrega.
+      allow create: if isStudentById(request.resource.data.studentId);
+
+      // Somente o professor dono devolve nota/feedback.
+      allow update: if ownedByMe(resource.data);
+
+      allow delete: if false;
+    }
+
+    // ================= sessoes =================
+
+    match /sessions/{sessId} {
+      allow read: if readable(resource.data);
+      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if ownedByMe(resource.data);
+    }
+
+    // ================= progresso: append-only =================
+
+    match /progressEvents/{eid} {
+      allow read: if readable(resource.data);
+      allow create: if isTeacher() && request.resource.data.createdBy != 'student';
+      allow update, delete: if false;
+    }
+
+    // ================= banco de itens do diagnostico =================
+
+    match /diagnosticItems/{itemId} {
+      allow read: if isTeacher();
+      allow write: if isAdmin();
+    }
+
+    // ================= notificacoes =================
+
+    match /notifications/{nid} {
+      allow read: if signedIn() && resource.data.recipientId == request.auth.uid;
+      allow update: if signedIn()
+        && resource.data.recipientId == request.auth.uid
+        && onlyKeysChanged(['readAt']);
+      allow create: if isTeacher();
+      allow delete: if signedIn() && resource.data.recipientId == request.auth.uid;
+    }
+
+    // ================= negado por padrao =================
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

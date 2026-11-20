@@ -1,0 +1,57 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-ink-50: #f6f7f9;
+  --color-ink-100: #eceef2;
+  --color-ink-200: #d5d9e2;
+  --color-ink-300: #b0b8c9;
+  --color-ink-400: #8591ab;
+  --color-ink-500: #667491;
+  --color-ink-600: #515c76;
+  --color-ink-700: #424b60;
+  --color-ink-800: #3a4152;
+  --color-ink-900: #343947;
+  --color-ink-950: #22252e;
+
+  --color-brand-50: #eefbf6;
+  --color-brand-100: #d5f5e9;
+  --color-brand-200: #aeead6;
+  --color-brand-300: #78d9be;
+  --color-brand-400: #40c1a2;
+  --color-brand-500: #1fa78a;
+  --color-brand-600: #128571;
+  --color-brand-700: #106b5c;
+  --color-brand-800: #11554b;
+  --color-brand-900: #11463f;
+
+  --color-audit-400: #f5a524;
+  --color-audit-500: #e08c0b;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-ink-50);
+  color: var(--color-ink-900);
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.25s ease-out both;
+}

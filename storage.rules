@@ -1,0 +1,40 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // O professor dono do aluno, ou o proprio aluno
+    function inStudentScope(sid) {
+      return signedIn()
+        && (firestore.get(/databases/(default)/documents/students/$(sid)).data.teacherId == request.auth.uid
+            || firestore.get(/databases/(default)/documents/students/$(sid)).data.authUid == request.auth.uid);
+    }
+
+    // students/{studentId}/...
+    match /students/{studentId}/{allPaths=**} {
+      allow read: if inStudentScope(studentId);
+      allow write: if signedIn()
+        && firestore.get(/databases/(default)/documents/students/$(studentId)).data.teacherId == request.auth.uid;
+    }
+
+    // materials/{contentId}/... (biblioteca compartilhada, somente leitura para alunos)
+    match /materials/{contentId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn();
+    }
+
+    // avatars/{uid}/...
+    match /avatars/{uid}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
