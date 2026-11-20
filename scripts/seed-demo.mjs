@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   connectAuthEmulator,
   getAuth,
+  signInWithEmailAndPassword,
   updateProfile,
 } from 'firebase/auth'
 import {
@@ -34,7 +35,7 @@ try {
   cred = await createUserWithEmailAndPassword(auth, 'professor@demo.com', 'Demo1234!')
 } catch (e) {
   if (e.code === 'auth/email-already-in-use') {
-    cred = { user: auth.currentUser }
+    cred = await signInWithEmailAndPassword(auth, 'professor@demo.com', 'Demo1234!')
   } else {
     throw e
   }
@@ -116,4 +117,5 @@ await setDoc(doc(db, 'students', studentRef.id), {
 }, { merge: true })
 
 console.log(JSON.stringify({ uid, studentId: studentRef.id, assessmentId: assessmentRef.id }))
+process.exit(0)
 
