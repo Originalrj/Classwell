@@ -38,6 +38,16 @@ A UI dos emuladores fica em <http://localhost:4000>. O `.env.local` de desenvolv
 `NEXT_PUBLIC_USE_EMULATORS=true`, que conecta o app aos emuladores locais (Auth 9099,
 Firestore 8080, Storage 9199).
 
+### Conta de demonstração
+
+Os emuladores foram semeados com uma conta de professor (`professor@demo.com` /
+`Demo1234!`) e uma aluna (Ana Silva) com avaliação e radar de competências. Para recriar
+os dados após reiniciar os emuladores sem persistência:
+
+```bash
+npm run seed:demo
+```
+
 ## Estrutura
 
 - `src/app` — rotas da aplicação (rampa, biblioteca, revisão, perfil, área do professor).

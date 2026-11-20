@@ -13,6 +13,7 @@
     "emulators": "firebase emulators:start --import ./emulator-data --export-on-exit ./emulator-data",
     "emulators:clear": "firebase emulators:start --import ./emulator-data",
     "seed": "tsx scripts/seed-biblioteca.ts",
+    "seed:demo": "node scripts/seed-demo.mjs",
     "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes,storage"
   },
   "dependencies": {
