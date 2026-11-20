@@ -50,6 +50,12 @@ export default function Home() {
           >
             Sou aluno
           </Link>
+          <Link
+            href="/prototipo"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-5 py-2.5 text-sm font-medium text-brand-700 transition hover:border-brand-300"
+          >
+            Ver prévia visual <span aria-hidden>→</span>
+          </Link>
         </div>
 
         {usingEmulators() && (
