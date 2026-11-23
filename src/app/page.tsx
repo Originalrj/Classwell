@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { AuthForm } from '@/components/auth-form'
 import { homeFor, useAuth } from './providers'
 import { usingEmulators } from '@/lib/firebase/client'
 
@@ -23,10 +24,10 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col justify-center gap-12 px-6 py-16 lg:flex-row lg:items-center lg:gap-20">
-      <section className="flex-1">
+    <main className="mx-auto grid min-h-screen max-w-6xl items-center gap-12 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+      <section>
         <span className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
-          Português como Língua Estrangeira
+          Português como Língua Estrangeiro
         </span>
         <h1 className="mt-5 text-4xl font-semibold tracking-tight text-ink-950 sm:text-5xl">
           Da primeira aula até o nível desejado, com um plano.
@@ -37,25 +38,16 @@ export default function Home() {
           material, tarefas e progresso visível para os dois lados.
         </p>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href="/entrar?modo=cadastro&papel=teacher"
-            className="rounded-lg bg-ink-950 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-ink-800"
-          >
-            Sou professor
-          </Link>
-          <Link
-            href="/entrar?modo=cadastro&papel=student"
-            className="rounded-lg border border-ink-200 bg-white px-5 py-2.5 text-sm font-medium text-ink-800 transition hover:border-ink-300"
-          >
-            Sou aluno
-          </Link>
+        <div className="mt-7 flex flex-wrap items-center gap-3">
           <Link
             href="/prototipo"
             className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-5 py-2.5 text-sm font-medium text-brand-700 transition hover:border-brand-300"
           >
             Ver prévia visual <span aria-hidden>→</span>
           </Link>
+          <span className="text-sm text-ink-400">
+            Professor ou aluno: use o formulário ao lado.
+          </span>
         </div>
 
         {usingEmulators() && (
@@ -64,17 +56,15 @@ export default function Home() {
             Emuladores locais — nada sai desta máquina
           </p>
         )}
-      </section>
 
-      <section className="flex-1">
-        <div className="rounded-xl border border-ink-200 bg-white p-6 shadow-sm">
+        <div className="mt-10 rounded-xl border border-ink-200 bg-white p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-ink-950">Como funciona</h2>
-          <ol className="mt-4 space-y-4">
+          <ol className="mt-4 grid gap-4 sm:grid-cols-2">
             {[
               ['Entrevista diagnóstica', 'O professor responde o que o aluno demonstra na aula.'],
-              ['Vetor de competências', 'Oito áreas avaliadas: ouvir, falar, ler, escrever, gramática, léxico, pronúncia e registro.'],
-              ['Rampa personalizada', 'Passos ordenados do nível atual até a meta, respeitando as horas que o aluno tem.'],
-              ['Material no tom dele', 'Idade, profissão e forma de aprender mudam como cada explicação é escrita.'],
+              ['Vetor de competências', 'Oito áreas: ouvir, falar, ler, escrever, gramática, léxico, pronúncia e registro.'],
+              ['Rampa personalizada', 'Passos do nível atual até a meta, respeitando as horas disponíveis.'],
+              ['Material no tom dele', 'Idade, profissão e interesse mudam como cada explicação é escrita.'],
             ].map(([title, body], i) => (
               <li key={title} className="flex gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ink-950 text-xs font-medium text-white">
@@ -88,6 +78,10 @@ export default function Home() {
             ))}
           </ol>
         </div>
+      </section>
+
+      <section id="acesso" aria-label="Entrar ou criar conta">
+        <AuthForm />
       </section>
     </main>
   )

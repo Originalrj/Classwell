@@ -10,7 +10,18 @@ import type {
  * o que quiser via `students.toneOverride`.
  */
 export function resolveTone(profile: StudentProfile): Tone {
-  const p = profile
+  // Perfis semeados antes do cadastro completo podem nao ter todos os campos.
+  // Normaliza aqui para nao quebrar a listagem de alunos.
+  const p: StudentProfile = {
+    ...profile,
+    age: profile?.age ?? 30,
+    country: profile?.country ?? '',
+    occupation: profile?.occupation ?? '',
+    priorStudyYears: profile?.priorStudyYears ?? 0,
+    priorLanguagesStudied: profile?.priorLanguagesStudied ?? [],
+    personality: profile?.personality ?? [],
+    interests: profile?.interests ?? [],
+  }
 
   return {
     formality: resolveFormality(p.country),

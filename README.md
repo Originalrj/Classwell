@@ -45,9 +45,12 @@ Abra <http://localhost:3000>. A prévia visual interativa fica em
 
 O fluxo de professor (`/professor`, `/professor/alunos`, `/professor/alunos/novo`) exige login.
 
-**Conta de demonstração:** `professor@demo.com` / `Demo1234!`
+**Contas de demonstração:**
 
-Ela vem com a aluna Ana Silva, avaliação e radar de competências. A biblioteca já é semeada
+- Professor: `professor@demo.com` / `Demo1234!`
+- Aluno: `aluno.teste@demo.com` / `Senha123!`
+
+A conta de professor vem com a aluna Ana Silva, avaliação e radar de competências. A biblioteca já é semeada
 com **24 aulas** (A1 a C1, ~37 h), publicadas no Firestore.
 
 Para recriar os dados depois de `emulators:clear` (ou se o emulador tiver sido reiniciado
