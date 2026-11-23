@@ -60,12 +60,37 @@ sem persistência):
 npm run seed:all
 ```
 
+O login/cadastro (professor ou aluno) fica **na tela inicial** e também em `/entrar`, com
+o mesmo formulário. O aluno autenticado é levado para `/aluno`.
+
+## Apanhado de conhecimento
+
+Em `/professor/biblioteca/apanhado` (menu **Apanhado**) está o índice de consulta rápida do
+professor. São **41 informações** organizadas em três eixos:
+
+- **Nível:** A0, A1, A2, B1, B2, C1, C2 (A0 é pré-nível pedagógico).
+- **Tipo de conhecimento:** gramática, léxico, fonética/pronúncia, pragmática/registro,
+  cultura/variação e ensino/estratégias.
+- **Formato:** pergunta comum, regra/explicação, contraste com L1 e dica de aula.
+
+Cada cartão traz a frase em **português**, a ponte em **inglês**, a versão **“como se fala”**,
+a resposta curta para a aula e dicas de transferência por idioma materno (en, es, fr, de, it,
+ja, zh, ar). A busca ignora acentos e combina termos — digitar `pronuncia` encontra
+`pronúncia`. O professor também pode filtrar por nível, tipo, formato, L1 e tema.
+
+O botão **“Criar material na biblioteca”** leva o cartão para o formulário de
+`/professor/biblioteca` já preenchido (título, corpo PT/EN/fala, nível, competências e tags),
+pronto para revisão e publicação. O acervo é código versionado em
+[`src/lib/domain/knowledge-bank.ts`](src/lib/domain/knowledge-bank.ts); o inventário completo
+está em [`APANHADO-CONHECIMENTO.md`](APANHADO-CONHECIMENTO.md).
+
 ## Estrutura
 
 - `src/app` — rotas da aplicação (rampa, biblioteca, revisão, perfil, área do professor).
 - `src/app/prototipo` — vitrine visual interativa do produto planejado.
 - `src/components` — interface e componentes de animação.
-- `src/lib/domain` — currículo, banco de diagnóstico e regras de nível (dados reais).
+- `src/lib/domain` — currículo, banco de diagnóstico, apanhado de conhecimento e regras de nível.
+- `src/app/professor/biblioteca/apanhado` — busca e filtros do acervo de consulta do professor.
 - `src/lib/firebase` — inicialização, repositórios e regras de acesso.
 - `scripts/seed-a1.ts` … `seed-c1.ts` — as 24 aulas-base em markdown.
 - `scripts/seed-biblioteca.ts` — publica as aulas na coleção `contents`.

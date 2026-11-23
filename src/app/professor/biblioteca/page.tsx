@@ -12,6 +12,7 @@ import {
   updateContentStatus,
 } from '@/lib/firebase/repositories'
 import { CEFR_LEVELS, SKILLS, SKILL_LABELS, levelIndex } from '@/lib/domain/levels'
+import { CONTENT_DRAFT_KEY, type ContentDraft } from '@/lib/domain/knowledge'
 import SpotlightCard from '@/components/reactbits/SpotlightCard'
 import {
   CONTENT_STATUSES,
@@ -43,9 +44,13 @@ export default function LibraryPage() {
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<ContentStatus | 'all'>('all')
   const [skill, setSkill] = useState<SkillCode | 'all'>('all')
+  const [levelFilter, setLevelFilter] = useState<CefrLevel | 'all'>('all')
+  const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all')
+  const [themeFilter, setThemeFilter] = useState<string | 'all'>('all')
   const [onlyMine, setOnlyMine] = useState(false)
   const [openId, setOpenId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [draft, setDraft] = useState<ContentDraft | null>(null)
 
   const reload = useCallback(() => {
     listContents()
@@ -55,22 +60,47 @@ export default function LibraryPage() {
 
   useEffect(reload, [reload])
 
+  // O apanhado de conhecimento escreve aqui quando o professor escolhe
+  // "Criar material na biblioteca". Abrimos o formulario ja preenchido.
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(CONTENT_DRAFT_KEY)
+      if (!raw) return
+      sessionStorage.removeItem(CONTENT_DRAFT_KEY)
+      setDraft(JSON.parse(raw) as ContentDraft)
+      setShowForm(true)
+    } catch {
+      // storage indisponivel ou rascunho corrompido: segue com formulario limpo
+    }
+  }, [])
+
   const filtered = useMemo(() => {
     if (items === 'loading') return []
     const q = query.trim().toLowerCase()
     return items.filter((c) => {
       if (status !== 'all' && c.status !== status) return false
       if (skill !== 'all' && !c.skills.includes(skill)) return false
+      if (
+        levelFilter !== 'all' &&
+        !(levelIndex(c.cefrMin) <= levelIndex(levelFilter) &&
+          levelIndex(levelFilter) <= levelIndex(c.cefrMax))
+      ) {
+        return false
+      }
+      if (typeFilter !== 'all' && c.type !== typeFilter) return false
+      if (themeFilter !== 'all' && !c.themeTags.includes(themeFilter)) return false
       if (onlyMine && c.authorId !== user?.uid) return false
       if (!q) return true
       return (
         c.title.toLowerCase().includes(q) ||
+        (c.body?.toLowerCase().includes(q) ?? false) ||
+        (c.answerKey?.toLowerCase().includes(q) ?? false) ||
         c.lexicalTags.some((t) => t.toLowerCase().includes(q)) ||
         c.grammarTags.some((t) => t.toLowerCase().includes(q)) ||
         c.themeTags.some((t) => t.includes(q))
       )
     })
-  }, [items, query, status, skill, onlyMine, user?.uid])
+  }, [items, query, status, skill, levelFilter, typeFilter, themeFilter, onlyMine, user?.uid])
 
   const counts = useMemo(() => {
     const base: Record<string, number> = { all: 0 }
@@ -95,16 +125,25 @@ export default function LibraryPage() {
             serve para qualquer aluno cujo perfil bata.
           </p>
         </div>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="rounded-lg bg-ink-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ink-800"
-        >
-          {showForm ? 'Fechar' : 'Novo material'}
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="/professor/biblioteca/apanhado"
+            className="rounded-lg border border-brand-200 bg-brand-50 px-4 py-2.5 text-sm font-medium text-brand-700 transition hover:border-brand-300"
+          >
+            Apanhado de conhecimento →
+          </Link>
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            className="rounded-lg bg-ink-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ink-800"
+          >
+            {showForm ? 'Fechar' : 'Novo material'}
+          </button>
+        </div>
       </header>
 
       {showForm && (
         <ContentForm
+          initial={draft}
           onCancel={() => setShowForm(false)}
           onSaved={() => {
             setShowForm(false)
@@ -114,13 +153,49 @@ export default function LibraryPage() {
       )}
 
       <div className="rounded-xl border border-ink-200 bg-white p-4">
-        <div className="grid gap-3 sm:grid-cols-[1.5fr_1fr_1fr_auto]">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(5,minmax(0,1fr))_auto]">
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar por título, léxico, gramática ou tema"
+            placeholder="Buscar por título, texto, léxico, gramática ou tema"
             className="rounded-lg border border-ink-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
           />
+          <select
+            value={levelFilter}
+            onChange={(e) => setLevelFilter(e.target.value as CefrLevel | 'all')}
+            className="rounded-lg border border-ink-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
+          >
+            <option value="all">Todos os níveis</option>
+            {CEFR_LEVELS.map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </select>
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value as ContentType | 'all')}
+            className="rounded-lg border border-ink-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
+          >
+            <option value="all">Todos os formatos</option>
+            {CONTENT_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {CONTENT_TYPE_LABELS[t]}
+              </option>
+            ))}
+          </select>
+          <select
+            value={themeFilter}
+            onChange={(e) => setThemeFilter(e.target.value)}
+            className="rounded-lg border border-ink-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
+          >
+            <option value="all">Todos os temas</option>
+            {CONTENT_THEMES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as ContentStatus | 'all')}
@@ -334,22 +409,30 @@ function ContentCard({
   )
 }
 
-function ContentForm({ onCancel, onSaved }: { onCancel: () => void; onSaved: () => void }) {
+function ContentForm({
+  initial,
+  onCancel,
+  onSaved,
+}: {
+  initial?: ContentDraft | null
+  onCancel: () => void
+  onSaved: () => void
+}) {
   const { user } = useAuth()
   const [minWords, setMinWords] = useState(300)
-  const [title, setTitle] = useState('')
-  const [type, setType] = useState<ContentType>('explanation')
-  const [body, setBody] = useState('')
+  const [title, setTitle] = useState(initial?.title ?? '')
+  const [type, setType] = useState<ContentType>(initial?.type ?? 'explanation')
+  const [body, setBody] = useState(initial?.body ?? '')
   const [answerKey, setAnswerKey] = useState('')
-  const [cefrMin, setCefrMin] = useState<CefrLevel>('A1')
-  const [cefrMax, setCefrMax] = useState<CefrLevel>('A2')
-  const [primarySkill, setPrimarySkill] = useState<SkillCode>('speaking')
-  const [skills, setSkills] = useState<SkillCode[]>(['speaking'])
-  const [themes, setThemes] = useState<string[]>([])
-  const [lexicalTags, setLexicalTags] = useState('')
-  const [grammarTags, setGrammarTags] = useState('')
-  const [register, setRegister] = useState<Register>('neutro')
-  const [estMinutes, setEstMinutes] = useState(15)
+  const [cefrMin, setCefrMin] = useState<CefrLevel>(initial?.cefrMin ?? 'A1')
+  const [cefrMax, setCefrMax] = useState<CefrLevel>(initial?.cefrMax ?? 'A2')
+  const [primarySkill, setPrimarySkill] = useState<SkillCode>(initial?.skills[0] ?? 'speaking')
+  const [skills, setSkills] = useState<SkillCode[]>(initial?.skills ?? ['speaking'])
+  const [themes, setThemes] = useState<string[]>(initial?.themeTags ?? [])
+  const [lexicalTags, setLexicalTags] = useState(initial?.lexicalTags.join(', ') ?? '')
+  const [grammarTags, setGrammarTags] = useState(initial?.grammarTags.join(', ') ?? '')
+  const [register, setRegister] = useState<Register>(initial?.register ?? 'neutro')
+  const [estMinutes, setEstMinutes] = useState(initial?.estMinutes ?? 15)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -432,6 +515,12 @@ function ContentForm({ onCancel, onSaved }: { onCancel: () => void; onSaved: () 
         O registro e obrigatório para PLE: o mesmo conteúdo muda de sentido conforme a
         formalidade.
       </p>
+
+      {initial && (
+        <p className="mt-3 rounded-lg bg-brand-50 px-3 py-2 text-xs text-brand-700">
+          Rascunho trazido do apanhado de conhecimento. Revise e complete antes de publicar.
+        </p>
+      )}
 
       <div className="mt-4 grid gap-4">
         <Field label="Título">

@@ -10,6 +10,7 @@ const NAV = [
   { href: '/professor', label: 'Painel' },
   { href: '/professor/alunos', label: 'Alunos' },
   { href: '/professor/biblioteca', label: 'Biblioteca' },
+  { href: '/professor/biblioteca/apanhado', label: 'Apanhado' },
   { href: '/professor/config', label: 'Configurações' },
 ]
 
@@ -52,7 +53,9 @@ export default function ProfessorLayout({ children }: { children: React.ReactNod
               const active =
                 item.href === '/professor'
                   ? pathname === '/professor'
-                  : pathname.startsWith(item.href)
+                  : item.href === '/professor/biblioteca'
+                    ? pathname.startsWith(item.href) && !pathname.includes('/apanhado')
+                    : pathname.startsWith(item.href)
               return (
                 <Link
                   key={item.href}
