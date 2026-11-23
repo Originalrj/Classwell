@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rampa — Prévia visual do protótipo</title>
+<meta name="description" content="Prévia interativa do produto: cartões de frase PT/EN/pronúncia por L1, aula de 50 min, jogos e progresso individual." />
+<style>
+  :root{
+    --ink-50:#f6f7f9;--ink-100:#eceef2;--ink-200:#d5d9e2;--ink-300:#b0b8c9;--ink-400:#8591ab;
+    --ink-500:#667491;--ink-600:#515c76;--ink-700:#424b60;--ink-800:#3a4152;--ink-900:#343947;--ink-950:#22252e;
+    --brand-50:#eefbf6;--brand-100:#d5f5e9;--brand-200:#aeead6;--brand-300:#78d9be;--brand-400:#40c1a2;
+    --brand-500:#1fa78a;--brand-600:#128571;--brand-700:#106b5c;--brand-800:#11554b;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--ink-50);color:var(--ink-900);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;cursor:pointer}
+  .wrap{max-width:1152px;margin:0 auto;padding:0 24px}
+  .muted{color:var(--ink-500)}
+  .tiny{font-size:11px}
+
+  header{position:sticky;top:0;z-index:30;border-bottom:1px solid rgba(213,217,226,.7);background:rgba(246,247,249,.92);backdrop-filter:blur(8px)}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;max-width:1152px;margin:0 auto}
+  .logo{display:flex;align-items:center;gap:9px}
+  .logo-mark{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--brand-600);color:#fff;font-weight:700}
+  .logo-word{font-size:18px;font-weight:650;letter-spacing:-.02em;color:var(--ink-950)}
+  .pill{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:var(--ink-200);color:var(--ink-600);border-radius:99px;padding:3px 8px}
+  nav{display:flex;gap:24px;font-size:14px;color:var(--ink-600)}
+  nav a:hover{color:var(--ink-950)}
+  .btn-dark{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:9px;background:var(--ink-950);color:#fff;font-size:14px;font-weight:500;padding:10px 16px;transition:background .2s}
+  .btn-dark:hover{background:var(--ink-800)}
+
+  .hero{padding:56px 24px 40px}
+  .hero-card{position:relative;overflow:hidden;max-width:1152px;margin:0 auto;border-radius:24px;background:var(--ink-950);color:#fff;padding:56px 56px}
+  .blur1{position:absolute;right:-64px;top:-96px;width:288px;height:288px;border-radius:50%;background:rgba(31,167,138,.25);filter:blur(56px);pointer-events:none}
+  .blur2{position:absolute;bottom:0;right:33%;width:160px;height:160px;border-radius:50%;background:rgba(64,193,162,.1);filter:blur(40px);pointer-events:none}
+  .hero-inner{position:relative;max-width:660px}
+  .badge{display:inline-flex;align-items:center;gap:8px;border-radius:99px;background:rgba(255,255,255,.1);color:var(--brand-200);font-size:12px;font-weight:500;padding:6px 12px}
+  h1{margin:24px 0 0;font-size:clamp(34px,5vw,58px);line-height:1.08;letter-spacing:-.03em;font-weight:650}
+  .accent{color:var(--brand-300)}
+  .hero p{margin:20px 0 0;max-width:560px;color:var(--ink-300);font-size:17px;line-height:1.6}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+  .btn-brand{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:9px;background:var(--brand-500);color:#fff;font-size:14px;font-weight:600;padding:12px 20px;transition:background .2s}
+  .btn-brand:hover{background:var(--brand-400)}
+  .btn-ghost{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:transparent;color:#fff;font-size:14px;font-weight:500;padding:12px 20px;transition:background .2s}
+  .btn-ghost:hover{background:rgba(255,255,255,.1)}
+  .stats{display:flex;flex-wrap:wrap;gap:12px 28px;margin-top:40px;font-size:12px;color:var(--ink-400)}
+  .stats strong{color:#fff;font-weight:650}
+
+  section{scroll-margin-top:88px;padding:56px 24px}
+  .sec{max-width:1152px;margin:0 auto}
+  .sec-head{display:flex;gap:16px;margin-bottom:28px}
+  .step{flex:none;display:grid;place-items:center;width:32px;height:32px;margin-top:2px;border-radius:9px;background:var(--brand-100);color:var(--brand-700);font-size:12px;font-weight:650}
+  h2{margin:0;font-size:clamp(24px,3vw,32px);line-height:1.15;letter-spacing:-.025em;color:var(--ink-950);font-weight:650}
+  .sub{margin:6px 0 0;max-width:660px;font-size:15px;line-height:1.55;color:var(--ink-500)}
+  .grid{display:grid;gap:24px}
+  @media(min-width:960px){.g-11{grid-template-columns:1.1fr .9fr}.g-95{grid-template-columns:.95fr 1.05fr}.g-2{grid-template-columns:1fr 1fr}.g-1085{grid-template-columns:1fr .85fr}}
+  .card{border:1px solid var(--ink-200);border-radius:18px;background:#fff;padding:28px;box-shadow:0 1px 2px rgba(34,37,46,.04)}
+  .card-sm{padding:22px}
+  .label{font-size:10px;font-weight:650;text-transform:uppercase;letter-spacing:.16em;color:var(--brand-600)}
+  .label-gray{color:var(--ink-400)}
+  .pt{margin:12px 0 0;font-size:30px;line-height:1.28;letter-spacing:-.025em;font-weight:650;color:var(--ink-950)}
+  .en{margin:8px 0 0;font-size:18px;color:var(--ink-600)}
+  .say{margin-top:24px;border-radius:12px;background:var(--brand-50);padding:16px}
+  .say code{display:block;margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;color:var(--brand-900)}
+  .say p{margin:8px 0 0;font-size:14px;color:rgba(17,85,75,.8)}
+  .levels{display:inline-flex;gap:3px;border-radius:9px;background:var(--ink-100);padding:4px}
+  .levels button{border:0;background:transparent;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:650;color:var(--ink-500);transition:.2s}
+  .levels button.on{background:#fff;color:var(--ink-950);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;align-items:center}
+  .btn-outline{border:1px solid var(--ink-200);border-radius:9px;background:#fff;color:var(--ink-800);font-size:14px;font-weight:500;padding:10px 16px;display:inline-flex;align-items:center;gap:8px;transition:border-color .2s}
+  .btn-outline:hover{border-color:var(--ink-300)}
+  .fade{animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .l1grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+  .l1grid button{border:1px solid var(--ink-200);border-radius:9px;background:#fff;padding:9px 12px;text-align:left;font-size:14px;color:var(--ink-600);transition:.2s}
+  .l1grid button.on{border-color:var(--brand-400);background:var(--brand-50);color:var(--brand-900)}
+  .tip{background:var(--ink-50);border-radius:12px;padding:16px;margin-top:16px}
+  .tip-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .tip-head b{font-size:14px;color:var(--ink-900)}
+  .focus{font-size:10px;background:#fff;border-radius:99px;padding:3px 8px;color:var(--ink-500)}
+  .tip p{margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--ink-600)}
+  .checklist{margin:12px 0 0;padding:0;list-style:none;font-size:14px;color:var(--ink-500)}
+  .checklist li{display:flex;gap:8px;margin-top:8px}
+  .checklist li::before{content:"✓";color:var(--brand-500);font-weight:700}
+
+  .lesson-list{display:flex;flex-direction:column;gap:8px}
+  .lesson{display:flex;align-items:center;gap:16px;width:100%;border:1px solid var(--ink-100);border-radius:12px;background:#fff;padding:14px;text-align:left;transition:.2s}
+  .lesson:hover{border-color:var(--ink-200);background:var(--ink-50)}
+  .lesson.on{border-color:var(--brand-400);background:var(--brand-50)}
+  .lesson time{flex:none;width:56px;font-family:ui-monospace,monospace;font-size:12px;font-weight:650;color:var(--ink-400)}
+  .lesson.on time{color:var(--brand-700)}
+  .lesson span{flex:1}
+  .lesson b{display:block;font-size:14px;font-weight:600;color:var(--ink-900)}
+  .lesson small{display:block;margin-top:2px;font-size:12px;color:var(--ink-500)}
+  .detail{display:flex;flex-direction:column;justify-content:space-between;border-radius:18px;background:var(--ink-950);color:#fff;padding:32px}
+  .detail h3{margin:24px 0 0;font-size:30px;letter-spacing:-.03em;font-weight:650}
+  .detail p{margin:16px 0 0;max-width:440px;color:var(--ink-300);font-size:15px;line-height:1.7}
+  .track{height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+  .track i{display:block;height:100%;border-radius:99px;background:var(--brand-400);transition:width .3s}
+  .track-labels{display:flex;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--ink-400)}
+
+  .quiz b{display:block;margin-top:24px;text-align:center;font-size:22px;letter-spacing:-.02em;color:var(--ink-950)}
+  .opts{display:flex;flex-direction:column;gap:8px;margin-top:24px}
+  .opts button{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--ink-200);border-radius:12px;background:#fff;padding:13px 16px;font-size:14px;color:var(--ink-700);text-align:left;transition:.2s}
+  .opts button:hover{border-color:var(--ink-300)}
+  .opts button.ok{border-color:var(--brand-400);background:var(--brand-50);color:var(--brand-900)}
+  .opts button.no{border-color:#fecaca;background:#fef2f2;color:#991b1b}
+  .feedback{margin:16px 0 0;font-size:14px;color:var(--brand-700)}
+  .interests{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+  .interest{border:1px solid var(--ink-200);border-radius:18px;background:#fff;padding:20px;box-shadow:0 1px 2px rgba(34,37,46,.04)}
+  .ic{display:grid;place-items:center;width:40px;height:40px;border-radius:11px;font-size:19px}
+  .interest h4{margin:16px 0 0;font-size:14px;color:var(--ink-950)}
+  .interest p{margin:6px 0 0;font-size:14px;line-height:1.55;color:var(--ink-500)}
+
+  .radar-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+  @media(min-width:640px){.radar-wrap{flex-direction:row}}
+  svg{max-width:100%}
+  .bars{width:100%;display:flex;flex-direction:column;gap:8px}
+  .bar-row{display:flex;align-items:center;gap:12px;font-size:14px}
+  .bar-row span:first-child{width:88px;color:var(--ink-600)}
+  .bar-row .track{background:var(--ink-100)}
+  .bar-row .track i{background:var(--brand-500)}
+  .bar-row code{width:26px;text-align:right;font-size:12px;color:var(--ink-500)}
+  .gap-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border-radius:9px;background:var(--ink-50);padding:10px 12px;margin-top:12px;font-size:14px}
+  .tag{font-size:10px;font-weight:600;border-radius:99px;padding:3px 8px}
+  .tag.red{background:#fef2f2;color:#dc2626}.tag.amber{background:#fffbeb;color:#b45309}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .chip{border:1px solid var(--ink-200);border-radius:99px;padding:5px 10px;font-size:12px;color:var(--ink-600)}
+  .link{display:inline-flex;align-items:center;gap:6px;margin-top:20px;font-size:14px;font-weight:600;color:var(--brand-700)}
+  .link:hover{color:var(--brand-800)}
+
+  footer{padding:48px 24px}
+  .foot{max-width:1152px;margin:0 auto;display:flex;flex-direction:column;gap:16px;align-items:flex-start;justify-content:space-between;border:1px solid var(--ink-200);border-radius:18px;background:#fff;padding:24px}
+  @media(min-width:640px){.foot{flex-direction:row;align-items:center}}
+  .foot p{margin:0}
+  .badge-note{display:block;margin-top:4px;font-size:14px;color:var(--ink-500)}
+  @media(max-width:760px){
+    nav{display:none}.hero-card{padding:36px 24px}.card{padding:22px}
+    .l1grid{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a class="logo" href="#topo"><span class="logo-mark">r</span><span class="logo-word">rampa</span><span class="pill">protótipo</span></a>
+    <nav><a href="#cartao">Cartão</a><a href="#aula">Aula de 50 min</a><a href="#jogos">Jogos</a><a href="#progresso">Progresso</a></nav>
+    <a class="btn-dark" href="https://github.com/Originalrj/Classwell">Ver código no GitHub ↗</a>
+  </div>
+</header>
+
+<section class="hero" id="topo">
+  <div class="hero-card">
+    <div class="blur1"></div><div class="blur2"></div>
+    <div class="hero-inner">
+      <span class="badge">✦ Prévia do produto em construção</span>
+      <h1>Português que faz sentido <span class="accent">na vida do aluno.</span></h1>
+      <p>Uma rampa de A0 a C1 com frases traduzidas, pronúncia explicada conforme o idioma materno, aulas de 50 minutos, jogos, música e progresso visível para professor e aluno.</p>
+      <div class="hero-actions">
+        <a class="btn-brand" href="#cartao">Explorar o protótipo →</a>
+        <a class="btn-ghost" href="#aula">Ver a aula de 50 min ›</a>
+      </div>
+      <div class="stats">
+        <span><strong>A0 → C1</strong> por competência</span>
+        <span><strong>PT · EN · “como se fala”</strong></span>
+        <span><strong>50 min</strong> por aula</span>
+        <span><strong>5 L1s</strong> com dicas específicas</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cartao">
+  <div class="sec">
+    <div class="sec-head"><span class="step">01</span><div><h2>Cartão de frase</h2><p class="sub">Português, tradução e pronúncia com atenção ao idioma materno.</p></div></div>
+    <div class="grid g-11">
+      <div class="card">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px">
+          <div class="levels" id="levels"></div>
+          <span class="tiny muted" id="counter"></span>
+        </div>
+        <div id="phrase" style="min-height:236px;margin-top:32px"></div>
+        <div class="actions">
+          <button class="btn-dark" onclick="falar()">◉ Ouvir em pt-BR</button>
+          <button class="btn-outline" onclick="proxima()">▶ Próxima frase</button>
+          <span class="tiny muted" style="margin-left:auto">✓ Áudio com voz nativa do navegador</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <h3 style="margin:0;font-size:14px">🌐 Dica por idioma materno</h3>
+          <p class="sub" style="margin-top:8px;font-size:13px">A mesma frase, um aviso diferente — porque o desafio de quem vem do inglês não é o de quem vem do japonês.</p>
+          <div class="l1grid" id="l1grid"></div>
+          <div class="tip fade" id="tip"></div>
+        </div>
+        <div class="card" style="border-style:dashed;background:rgba(255,255,255,.6)">
+          <h3 style="margin:0;font-size:14px">📖 Próximos passos deste cartão</h3>
+          <ul class="checklist">
+            <li>Gravação do aluno comparada ao áudio modelo</li>
+            <li>Exercício de completar a frase</li>
+            <li>Revisão espaçada em 1 / 3 / 7 dias</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="aula">
+  <div class="sec">
+    <div class="sec-head"><span class="step">02</span><div><h2>Uma aula de 50 minutos</h2><p class="sub">Ritmo planejado, com prática, jogo e fechamento — não só conteúdo solto.</p></div></div>
+    <div class="grid g-95">
+      <div class="card">
+        <p class="muted" style="margin:0 0 16px;font-size:14px">◷ Clique em um bloco para ver o detalhe</p>
+        <div class="lesson-list" id="lessonList"></div>
+      </div>
+      <div class="detail">
+        <div>
+          <span class="badge" id="lessonTag"></span>
+          <h3 id="lessonTitle"></h3>
+          <p id="lessonBody"></p>
+        </div>
+        <div style="margin-top:40px">
+          <div class="track"><i id="lessonBar"></i></div>
+          <div class="track-labels"><span>Início</span><span>6 blocos · 50 minutos</span><span>Fim</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="jogos">
+  <div class="sec">
+    <div class="sec-head"><span class="step">03</span><div><h2>Jogos e interesses</h2><p class="sub">Prática leve e temas que importam para quem está aprendendo.</p></div></div>
+    <div class="grid g-2">
+      <div class="card">
+        <h3 style="margin:0;font-size:14px">🎮 Mini-jogo · escolha a tradução</h3>
+        <b>“Eu gostaria de um café, por favor.”</b>
+        <div class="opts" id="opts"></div>
+        <p class="feedback fade" id="feedback" style="display:none"></p>
+      </div>
+      <div class="interests">
+        <div class="interest"><span class="ic" style="background:#f5f3ff;color:#7c3aed">♪</span><h4>Música</h4><p>Versos de MPB e pop em português, com glossário e canto alongado.</p></div>
+        <div class="interest"><span class="ic" style="background:#fffbeb;color:#d97706">☕</span><h4>Comida</h4><p>Receitas curtas, cardápios e diálogos de mercado como material de A1/A2.</p></div>
+        <div class="interest"><span class="ic" style="background:#f0f9ff;color:#0284c7">◎</span><h4>Cultura</h4><p>Notícias leves, feriados e costumes para treinar registro e pragmática.</p></div>
+        <div class="interest"><span class="ic" style="background:var(--brand-50);color:var(--brand-600)">✈</span><h4>Viagem</h4><p>Situações reais: aeroporto, hotel, direções e improviso oral.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="progresso">
+  <div class="sec">
+    <div class="sec-head"><span class="step">04</span><div><h2>Progresso individual</h2><p class="sub">Oito competências, não uma nota só — e o professor vê o mesmo que o aluno.</p></div></div>
+    <div class="grid g-1085">
+      <div class="card">
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:16px">
+          <div><h3 style="margin:0;font-size:18px">Ana Silva</h3><p class="sub" style="margin-top:4px;font-size:14px">Meta: A2 · 3 h/semana · aulas de 50 min</p></div>
+          <span style="border-radius:99px;background:var(--brand-50);color:var(--brand-700);font-size:12px;font-weight:650;padding:6px 12px">Nível atual: A2</span>
+        </div>
+        <div class="radar-wrap">
+          <svg viewBox="0 0 320 320" style="height:256px;width:256px" role="img" aria-label="Radar de competências da Ana">
+            <g id="radarGrid"></g><g id="radarData"></g>
+          </svg>
+          <div class="bars" id="bars"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <h3 style="margin:0;font-size:14px">◎ Próximos gargalos</h3>
+          <div class="gap-row"><b>Fala</b><code>A1 → A2</code><span class="tag red">crítico</span></div>
+          <div class="gap-row"><b>Pronúncia</b><code>A1 → A2</code><span class="tag amber">importante</span></div>
+        </div>
+        <div class="card">
+          <h3 style="margin:0;font-size:14px">🎓 Cadastro do aluno</h3>
+          <p class="sub" style="margin-top:8px;font-size:14px">Idioma materno, interesses, objetivo, nível-alvo e horas por semana entram no cadastro e mudam o conteúdo da rampa — inclusive a dica de pronúncia do cartão acima.</p>
+          <div class="chips"><span class="chip">Inglês</span><span class="chip">Música</span><span class="chip">A2 em 4 meses</span><span class="chip">3 h/semana</span></div>
+          <a class="link" href="https://github.com/Originalrj/Classwell/tree/main/src/app/professor/alunos/novo">Ver cadastro real →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <div><p style="font-size:14px;font-weight:650">Esta é uma prévia visual.</p><span class="badge-note">Os dados são de exemplo. O fluxo real de login, cadastro e progresso está no repositório.</span></div>
+    <a class="btn-dark" href="https://github.com/Originalrj/Classwell">Abrir repositório →</a>
+  </div>
+</footer>
+
+<script>
+const PHRASES = {
+  A0:[
+    {pt:'Oi, eu sou a Ana.',en:'Hi, I am Ana.',say:'Oi, iu sou a Â-na.',note:'O “sou” tem vogal fechada: é “sô”, não “sou” aberto.'},
+    {pt:'Como você se chama?',en:'What is your name?',say:'KO-mu vo-SE se SHÃ-ma?',note:'O “lh” soa como “li” rápido: “sha-ma”, não “chama”.'},
+    {pt:'Eu moro no Rio.',en:'I live in Rio.',say:'Iu MO-ru nu Riu.',note:'“Rio” tem duas sílabas: Ri-u, sem ditongo.'}
+  ],
+  A1:[
+    {pt:'Eu gostaria de um café, por favor.',en:'I would like a coffee, please.',say:'Iu gos-TA-ri-a d um ka-FE, pu fa-VOR.',note:'“por” soa como “pur”; o “r” final é bem fraco.'},
+    {pt:'Onde fica a estação?',en:'Where is the station?',say:'ON-di FI-ka a es-ta-SÃU?',note:'“ão” é nasal: o ar sai pelo nariz, como um “au” nasalizado.'},
+    {pt:'Trabalho com design.',en:'I work in design.',say:'Tra-BA-lu ku di-ZAIN.',note:'O “lh” de “trabalho” não existe no inglês: é um “li” suave.'}
+  ],
+  A2:[
+    {pt:'Se eu tivesse tempo, viajaria mais.',en:'If I had time, I would travel more.',say:'Si eu ti-VES-si TEM-pu, vi-a-ZHRI-a mais.',note:'O “j” em “viajaria” soa como o “s” de “measure”.'},
+    {pt:'Já comi feijoada uma vez.',en:'I have already eaten feijoada once.',say:'ZHA ko-MI fei-zhO-a-da U-ma vez.',note:'“Já” com J como “zh”; “feijoada” tem o “j” também suave.'},
+    {pt:'Prefiro que a gente combine amanhã.',en:'I prefer that we arrange it tomorrow.',say:'Pre-FI-ru ki a ZHEN-ti kom-BI-ni a-ma-NÃ.',note:'“amanhã” termina em “ã” nasal — não é “amania”.'}
+  ],
+  B1:[
+    {pt:'Embora esteja cansado, vou terminar o relatório.',en:'Although I am tired, I will finish the report.',say:'Em-BO-ra is-TE-ja kan-SA-du, vou ter-mi-NAR u re-la-TÓ-riu.',note:'O “o” de “relatório” é fechado; a palavra termina em “iu”.'},
+    {pt:'Se tivesse sabido, teria avisado antes.',en:'If I had known, I would have warned you earlier.',say:'Si ti-VES-si sa-BI-du, te-RI-a a-vi-ZA-du AN-tis.',note:'“avisado” tem o “s” entre vogais com som de “z”.'},
+    {pt:'O que mais me chamou atenção foi a música.',en:'What caught my attention most was the music.',say:'U ki MAIS mi sha-MOU a-ten-SÃU foi a MU-zi-ka.',note:'“música” tem acento na primeira sílaba: MU-zi-ka.'}
+  ]
+};
+const L1 = {
+  en:{label:'Inglês',flag:'🇬🇧',focus:'r · vogais · nh/lh',tip:'O “r” no início é fraco, quase um “h”. Não use o /ɹ/ inglês, e cuidado para não ditongar as vogais fechadas.'},
+  es:{label:'Espanhol',flag:'🇪🇸',focus:'s final · ão · ll',tip:'O “s” antes de vogal soa como “z”. O “ão” é nasal e o “lh” não é o “ll” espanhol: é um “li” rápido.'},
+  fr:{label:'Francês',flag:'🇫🇷',focus:'vogais · r · lh',tip:'As vogais são mais fechadas e o “r” é mais fraco que o /ʁ/ francês. Marque bem o “lh” e as finais em “ão”.'},
+  de:{label:'Alemão',flag:'🇩🇪',focus:'u · ch · ê',tip:'Evite o “ch” alemão: em “muito” as vogais ficam soltas. O “r” final é bem mais fraco que o alemão.'},
+  ja:{label:'Japonês',flag:'🇯🇵',focus:'ã · õ · ritmo',tip:'Vogais nasais (ã, õ) não existem no japonês: deixe o ar sair pelo nariz e marque o acento da última sílaba.'}
+};
+const LESSON = [
+  {time:'00–05',title:'Acolhida e checagem',tag:'Relação',body:'Como foi a semana? Revisão rápida do que ficou da última aula e confirmação do objetivo da sessão.'},
+  {time:'05–15',title:'Aquecimento com a frase',tag:'Pronúncia',body:'Cartão PT → EN → como se fala. O aluno ouve, repete e grava a própria voz para comparar.'},
+  {time:'15–30',title:'Núcleo do nível',tag:'Gramática',body:'Uma micro-habilidade da rampa por aula: uma função comunicativa, quatro exemplos e uma regra curta.'},
+  {time:'30–42',title:'Jogo de prática',tag:'Prática',body:'Escolha a tradução, complete a lacuna ou monte a frase em ordem. Erro vira dica, não punição.'},
+  {time:'42–48',title:'Música e interesses',tag:'Engajamento',body:'Trecho de música, receita ou tema de cultura conectado ao objetivo que o aluno declarou no cadastro.'},
+  {time:'48–50',title:'Fechamento e tarefa',tag:'Progresso',body:'O que ficou, o que volta na revisão espaçada e uma microtarefa para a semana.'}
+];
+const SKILLS=['Ouvir','Falar','Ler','Escrever','Gramática','Léxico','Pronúncia','Registro'];
+const VALS=[2,1,3,2,2,3,1,2];
+const LABELS=['A1','A2','B1','B2','C1'];
+
+let level='A1', idx=0, l1='en', lesson=0;
+const $=id=>document.getElementById(id);
+
+function renderLevels(){
+  $('levels').innerHTML=['A0','A1','A2','B1'].map(x=>`<button class="${x===level?'on':''}" onclick="setLevel('${x}')">${x}</button>`).join('');
+}
+function setLevel(x){level=x;idx=0;render()}
+function proxima(){idx++;render()}
+function renderPhrase(){
+  const p=PHRASES[level][idx%PHRASES[level].length];
+  $('counter').textContent=`Frase ${idx%PHRASES[level].length+1} de ${PHRASES[level].length}`;
+  $('phrase').className='fade';
+  $('phrase').innerHTML=`
+    <span class="label">Em português</span>
+    <p class="pt">${p.pt}</p>
+    <span class="label label-gray" style="display:block;margin-top:24px">In English</span>
+    <p class="en">${p.en}</p>
+    <div class="say"><span class="label" style="color:var(--brand-700)">Como se fala</span>
+      <code>${p.say}</code><p>${p.note}</p></div>`;
+}
+function renderL1(){
+  $('l1grid').innerHTML=Object.entries(L1).map(([k,v])=>`<button class="${k===l1?'on':''}" onclick="setL1('${k}')">${v.flag} ${v.label}</button>`).join('');
+  const t=L1[l1];
+  $('tip').className='tip fade';
+  $('tip').innerHTML=`<div class="tip-head"><b>${t.flag} ${t.label}</b><span class="focus">foco: ${t.focus}</span></div><p>${t.tip}</p>`;
+}
+function setL1(x){l1=x;render()}
+function renderLesson(){
+  $('lessonList').innerHTML=LESSON.map((x,i)=>`<button class="lesson ${i===lesson?'on':''}" onclick="setLesson(${i})">
+    <time>${x.time}</time><span><b>${x.title}</b><small>${x.tag}</small></span><span>›</span></button>`).join('');
+  const x=LESSON[lesson];
+  $('lessonTag').textContent=`${x.time} · ${x.tag}`;
+  $('lessonTitle').textContent=x.title;
+  $('lessonBody').textContent=x.body;
+  $('lessonBar').style.width=`${((lesson+1)/LESSON.length)*100}%`;
+}
+function setLesson(i){lesson=i;renderLesson()}
+function renderQuiz(){
+  const opts=['I would like a coffee, please.','I like coffee much.','I want a coffee now.'];
+  $('opts').innerHTML=opts.map((o,i)=>`<button id="opt${i}" onclick="answer(${i})">${o}<span id="mark${i}"></span></button>`).join('');
+  $('feedback').style.display='none';
+}
+function answer(i){
+  for(let j=0;j<3;j++){$('opt'+j).className='';$('mark'+j).textContent=''}
+  $('opt'+i).className=i===0?'ok':'no';
+  $('mark'+i).textContent=i===0?'✓':'tente de novo';
+  const f=$('feedback');f.style.display='block';f.className='feedback fade';
+  f.textContent=i===0?'Isso! “Gostaria de” é a forma educada — mais natural que “quero”.':'Quase: “gostaria de” soa como “would like”. Tente a primeira opção.';
+}
+function polar(i,n,r,cx=160,cy=160){const a=-Math.PI/2+(i*2*Math.PI)/n;return{x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r}}
+function renderRadar(){
+  let g='';
+  [1,2,3,4].forEach(n=>{const pts=Array(8).fill(0).map((_,i)=>{const p=polar(i,8,112*n/4);return `${p.x},${p.y}`}).join(' ');
+    g+=`<polygon points="${pts}" fill="none" stroke="#e6e9ef" stroke-width="1"/>`});
+  SKILLS.forEach((_,i)=>{const p=polar(i,8,112);g+=`<line x1="160" y1="160" x2="${p.x}" y2="${p.y}" stroke="#e6e9ef" stroke-width="1"/>`});
+  $('radarGrid').innerHTML=g;
+  const poly=VALS.map((v,i)=>{const p=polar(i,8,112*v/4);return `${p.x},${p.y}`}).join(' ');
+  let d=`<polygon points="${poly}" fill="rgba(31,167,138,.18)" stroke="#1fa78a" stroke-width="2"/>`;
+  VALS.forEach((v,i)=>{const p=polar(i,8,112*v/4);d+=`<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#128571"/>`});
+  $('radarData').innerHTML=d;
+  $('bars').innerHTML=SKILLS.map((s,i)=>`<div class="bar-row"><span>${s}</span><div class="track"><i style="width:${VALS[i]*25}%"></i></div><code>${LABELS[VALS[i]-1]}</code></div>`).join('');
+}
+function falar(){
+  if(!('speechSynthesis' in window))return;
+  const p=PHRASES[level][idx%PHRASES[level].length];
+  const u=new SpeechSynthesisUtterance(p.pt);u.lang='pt-BR';u.rate=.92;
+  speechSynthesis.cancel();speechSynthesis.speak(u);
+}
+function render(){renderLevels();renderPhrase();renderL1();renderLesson()}
+render();renderQuiz();renderRadar();
+</script>
+</body>
+</html>

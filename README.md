@@ -5,8 +5,16 @@ rampa de conteúdo, biblioteca, revisão espaçada e acompanhamento individual d
 
 ## Prévia visual
 
-A vitrine interativa do produto está em [`src/app/prototipo/page.tsx`](src/app/prototipo/page.tsx)
-e pode ser aberta em <http://localhost:3000/prototipo> com o servidor local rodando.
+- **GitHub Pages:** <https://originalrj.github.io/Classwell/> — versão estática interativa,
+  servida diretamente de [`docs/index.html`](docs/index.html) (não precisa rodar nada).
+- **App local:** <http://localhost:3000/prototipo> com o servidor Next rodando (código em
+  [`src/app/prototipo/page.tsx`](src/app/prototipo/page.tsx)).
+
+Para ativar o Pages uma vez: no repositório, **Settings → Pages → Build and deployment →
+Source: "Deploy from a branch" → Branch: `main` / `/docs` → Save**.
+
+> A versão do Pages é autônoma (HTML/CSS/JS puros) e reproduz as interações da vitrine:
+> troca de nível e de frase, dicas por L1, blocos da aula de 50 min, quiz e radar.
 
 ![Prévia visual do protótipo](docs/prototipo.png)
 
