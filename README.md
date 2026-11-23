@@ -3,6 +3,16 @@
 Plataforma de ensino de português para estrangeiros, com trilha por nível (A0, A1, A2...),
 rampa de conteúdo, biblioteca, revisão espaçada e acompanhamento individual de alunos.
 
+## Prévia visual
+
+A vitrine interativa do produto está em [`src/app/prototipo/page.tsx`](src/app/prototipo/page.tsx)
+e pode ser aberta em <http://localhost:3000/prototipo> com o servidor local rodando.
+
+![Prévia visual do protótipo](docs/prototipo.png)
+
+A vitrine mostra: cartão de frase PT → EN → "como se fala", dicas por idioma materno,
+plano de aula de 50 minutos, mini-jogo, temas de interesse e radar de competências.
+
 ## Rodando localmente
 
 Requisitos: **Node 22+** (Node 21 quebra com `ERR_REQUIRE_ESM`) e **JDK 17+** (necessário
