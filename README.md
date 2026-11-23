@@ -10,8 +10,8 @@ rampa de conteúdo, biblioteca, revisão espaçada e acompanhamento individual d
 - **App local:** <http://localhost:3000/prototipo> com o servidor Next rodando (código em
   [`src/app/prototipo/page.tsx`](src/app/prototipo/page.tsx)).
 
-Para ativar o Pages uma vez: no repositório, **Settings → Pages → Build and deployment →
-Source: "Deploy from a branch" → Branch: `main` / `/docs` → Save**.
+O Pages já está ativado e aponta para `main` / `/docs` (configurado via API em
+`POST /repos/{owner}/{repo}/pages`). Cada push no `main` dispara um novo build.
 
 > A versão do Pages é autônoma (HTML/CSS/JS puros) e reproduz as interações da vitrine:
 > troca de nível e de frase, dicas por L1, blocos da aula de 50 min, quiz e radar.
