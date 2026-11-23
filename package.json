@@ -10,10 +10,11 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx scripts/verify.ts",
     "verify": "tsx scripts/verify.ts",
-    "emulators": "firebase emulators:start --import ./emulator-data --export-on-exit ./emulator-data",
-    "emulators:clear": "firebase emulators:start --import ./emulator-data",
+    "emulators": "firebase emulators:start --only auth,firestore,ui --project demo-rampa --import ./emulator-data --export-on-exit ./emulator-data",
+    "emulators:clear": "firebase emulators:start --only auth,firestore,ui --project demo-rampa",
     "seed": "tsx scripts/seed-biblioteca.ts",
     "seed:demo": "node scripts/seed-demo.mjs",
+    "seed:all": "npm run seed && npm run seed:demo",
     "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes,storage"
   },
   "dependencies": {

@@ -5,54 +5,56 @@ rampa de conteúdo, biblioteca, revisão espaçada e acompanhamento individual d
 
 ## Rodando localmente
 
-Requisitos: Node 22+ e JDK 17+ (necessário apenas para os emuladores Firebase).
+Requisitos: **Node 22+** (Node 21 quebra com `ERR_REQUIRE_ESM`) e **JDK 17+** (necessário
+apenas para os emuladores Firebase).
 
 ```bash
 npm install
-cp .env.example .env.local
-npm run dev
+npm run emulators      # terminal 1
+npm run seed:all       # terminal 2 (popular Auth + Firestore)
+npm run dev            # terminal 3
 ```
 
-Abra <http://localhost:3000>.
+Abra <http://localhost:3000>. A prévia visual interativa fica em
+<http://localhost:3000/prototipo>.
 
-### Login e cadastro de alunos
+> O `.env.local` de desenvolvimento já vem com `NEXT_PUBLIC_USE_EMULATORS=true`, que conecta
+> o app aos emuladores locais (Auth 9099, Firestore 8080, UI 4000). O script `emulators`
+> usa `--import/--export-on-exit` em `./emulator-data`, para os dados sobreviverem ao
+> reinício. Se preferir começar do zero, use `npm run emulators:clear` e rode `npm run seed:all`.
+
+## Login e cadastro de alunos
 
 O fluxo de professor (`/professor`, `/professor/alunos`, `/professor/alunos/novo`) exige login.
-Para avaliar sem usar um projeto Firebase real, use os emuladores:
+
+**Conta de demonstração:** `professor@demo.com` / `Demo1234!`
+
+Ela vem com a aluna Ana Silva, avaliação e radar de competências. A biblioteca já é semeada
+com **24 aulas** (A1 a C1, ~37 h), publicadas no Firestore.
+
+Para recriar os dados depois de `emulators:clear` (ou se o emulador tiver sido reiniciado
+sem persistência):
 
 ```bash
-#terminal 1
-npm run emulators
-
-# terminal 2
-npm run dev
-```
-
-Em seguida:
-
-1. Acesse <http://localhost:3000/entrar> e crie uma conta com perfil de professor.
-2. Use o menu **Alunos** para cadastrar um aluno e registrar uma avaliação.
-3. O painel do aluno mostra o radar de competências e o progresso.
-
-A UI dos emuladores fica em <http://localhost:4000>. O `.env.local` de desenvolvimento usa
-`NEXT_PUBLIC_USE_EMULATORS=true`, que conecta o app aos emuladores locais (Auth 9099,
-Firestore 8080, Storage 9199).
-
-### Conta de demonstração
-
-Os emuladores foram semeados com uma conta de professor (`professor@demo.com` /
-`Demo1234!`) e uma aluna (Ana Silva) com avaliação e radar de competências. Para recriar
-os dados após reiniciar os emuladores sem persistência:
-
-```bash
-npm run seed:demo
+npm run seed:all
 ```
 
 ## Estrutura
 
 - `src/app` — rotas da aplicação (rampa, biblioteca, revisão, perfil, área do professor).
+- `src/app/prototipo` — vitrine visual interativa do produto planejado.
 - `src/components` — interface e componentes de animação.
+- `src/lib/domain` — currículo, banco de diagnóstico e regras de nível (dados reais).
 - `src/lib/firebase` — inicialização, repositórios e regras de acesso.
-- `src/lib/content` — conteúdo pedagógico e dados de níveis.
+- `scripts/seed-a1.ts` … `seed-c1.ts` — as 24 aulas-base em markdown.
+- `scripts/seed-biblioteca.ts` — publica as aulas na coleção `contents`.
+- `scripts/seed-demo.mjs` — cria professor, aluna e avaliação de demonstração.
 - `scripts/verify.ts` — verificação automática da spec (`npm run verify`).
 - `SPEC.md` — especificação do produto.
+
+## Verificação
+
+```bash
+npm run typecheck
+npm run verify
+```
