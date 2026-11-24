@@ -2,7 +2,8 @@
 
 > Documento de consulta do professor. A versão navegável fica em
 > `/professor/biblioteca/apanhado` (menu **Apanhado** no app).
-> Atualizado em 2026-11-23 · 41 informações.
+> Atualizado em 2026-11-23 · 72 informações. Veja também a
+> [avaliação das lacunas de PLE](AVALIACAO-LACUNAS-PLE.md), com prioridades P0/P1/P2.
 
 ## 1. Para que serve
 
@@ -39,46 +40,46 @@ Digitar `pronuncia` encontra `pronúncia`; `ser estar` encontra a entrada de ser
 | Nível | Entradas |
 |---|---:|
 | A0 · primeiros passos | 5 |
-| A1 · iniciante | 9 |
-| A2 · elementar | 8 |
-| B1 · intermediário | 6 |
-| B2 · fluência funcional | 6 |
+| A1 · iniciante | 16 |
+| A2 · elementar | 16 |
+| B1 · intermediário | 14 |
+| B2 · fluência funcional | 14 |
 | C1 · avançado | 5 |
 | C2 · domínio | 2 |
-| **Total** | **41** |
+| **Total** | **72** |
 
 ### Por tipo de conhecimento
 
 | Tipo | Entradas |
 |---|---:|
-| Gramática | 17 |
+| Gramática | 37 |
 | Pragmática e registro | 9 |
 | Cultura e variação | 5 |
-| Léxico | 4 |
-| Fonética e pronúncia | 4 |
-| Ensino e estratégias | 2 |
+| Léxico | 6 |
+| Fonética e pronúncia | 10 |
+| Ensino e estratégias | 5 |
 
 ### Por formato
 
 | Formato | Entradas |
 |---|---:|
 | Pergunta comum | 30 |
-| Regra / explicação | 6 |
-| Contraste com L1 | 3 |
-| Dica de aula | 2 |
+| Regra / explicação | 29 |
+| Contraste com L1 | 8 |
+| Dica de aula | 5 |
 
 ### Dicas por idioma materno
 
 | L1 | Entradas com dica |
 |---|---:|
-| en | 39 |
-| es | 24 |
-| fr | 6 |
-| ja | 5 |
-| it | 4 |
+| en | 70 |
+| es | 55 |
+| fr | 26 |
+| de | 8 |
+| ja | 7 |
+| it | 5 |
 | zh | 4 |
 | ar | 3 |
-| de | 2 |
 
 ## 4. Inventário
 
@@ -107,6 +108,13 @@ Legenda do formato: **Q** pergunta comum · **R** regra · **C** contraste com L
 | `a1-voce-tu` | pragmática | Q | Devo dizer “tu” ou “você”? |
 | `contrast-ja-artigo` | gramática | C | Por que preciso de “o/a” se em japonês não tem artigo? |
 | `tip-aquecimento` | ensino | T | Como começar uma aula de 50 minutos em 3 minutos? |
+| `a1-x-quatro-sons` | fonética | R | Por que “deixar” soa com CH, mas “próximo” soa com S? |
+| `a1-ss-som-unico` | fonética | R | Por que “passo” e “casa” não têm o mesmo som? |
+| `a1-nh-lh` | fonética | R | Como se fala “filho” e “sonho”? |
+| `a1-h-mudo` | fonética | R | Por que “hoje” não começa com som de H? |
+| `a1-plural-genero` | gramática | R | Como formar o plural e saber se a palavra é masculina ou feminina? |
+| `a1-negacao-nao` | gramática | R | Onde colocar o “não” na frase? |
+| `tip-revisao-espacada` | ensino | T | Como revisar sem repetir a aula inteira? |
 
 ### A2 — elementar
 
@@ -120,6 +128,14 @@ Legenda do formato: **Q** pergunta comum · **R** regra · **C** contraste com L
 | `a2-rotina` | léxico | Q | Como descrever minha rotina de manhã? |
 | `contrast-es-largo` | léxico | C | “Largo” em espanhol é “largo” em português? |
 | `tip-correcao-pronuncia` | ensino | T | Como corrigir a pronúncia sem cortar a conversa? |
+| `a2-contracoes-a-o` | gramática | R | Por que se escreve “ao” e não “a o”? |
+| `a2-por-para` | gramática | C | Quando usar “por” e quando usar “para”? |
+| `a2-saber-conhecer` | léxico | C | Como dizer “I know” — saber ou conhecer? |
+| `a2-mas-mais` | gramática | C | Como não confundir “mas” e “mais”? |
+| `a2-tempo-fazer-estar` | gramática | R | Como falar do tempo: “faz frio” ou “está frio”? |
+| `a2-acento-silaba-tonica` | fonética | R | Por que “café” tem acento e “casa” não? |
+| `a2-ditongo-hiato` | fonética | R | Qual a diferença entre “caixa” e “saia”? |
+| `tip-pares-contraste` | ensino | T | Como praticar um som novo em dois minutos? |
 
 ### B1 — intermediário
 
@@ -131,6 +147,14 @@ Legenda do formato: **Q** pergunta comum · **R** regra · **C** contraste com L
 | `b1-medico-dor` | pragmática | Q | O que dizer quando estou doente? |
 | `b1-opiniao` | pragmática | Q | Como dar minha opinião sem parecer rude? |
 | `contrast-en-actually` | léxico | C | “Actually” é “atualmente”? |
+| `b1-por-que-familia` | gramática | R | Qual é a diferença entre “por que”, “porque”, “por quê” e “porquê”? |
+| `b1-crase` | gramática | R | Por que “vou à praia” tem acento no “à”? |
+| `b1-ter-haver` | gramática | C | Devo dizer “tem” ou “há”? |
+| `b1-a-gente` | gramática | R | Quando usar “a gente” em vez de “nós”? |
+| `b1-futuro-simples` | gramática | R | Quando usar o futuro simples em vez de “vou + infinitivo”? |
+| `b1-condicional` | gramática | R | Como dizer “I would” em português? |
+| `b1-levar-trazer` | léxico | C | Qual a diferença entre “levar” e “trazer”? |
+| `tip-correcao-geral` | ensino | T | Quando corrigir o erro e quando deixar passar? |
 
 ### B2 — fluência funcional
 
@@ -142,6 +166,14 @@ Legenda do formato: **Q** pergunta comum · **R** regra · **C** contraste com L
 | `b2-email-formal` | pragmática | Q | Como escrever um e-mail profissional em português? |
 | `b2-voce-concordancia` | gramática | R | “Você sabe” ou “vocês sabem”? |
 | `b2-futebol-virada` | cultura | Q | Como comentar um jogo de futebol como um brasileiro? |
+| `b2-mapa-tempos` | gramática | R | Como organizar os tempos verbais do português na cabeça do aluno? |
+| `b2-mais-que-perfeito` | gramática | R | Como falar do passado antes do passado? |
+| `b2-futuro-subjuntivo` | gramática | R | Por que se diz “quando chegar, me avise”? |
+| `b2-voz-passiva` | gramática | R | Como dizer que algo aconteceu sem dizer quem fez? |
+| `b2-discurso-indireto` | gramática | R | Como repetir o que alguém disse sem aspas? |
+| `b2-concordancia-verbal` | gramática | R | Por que “os alunos chegaram”, mas “a gente chegou”? |
+| `b2-concordancia-nominal` | gramática | R | Por que “as casas bonitas” e não “as casa bonita”? |
+| `b2-se-impessoal` | gramática | R | O que é o “se” em “se vende pão” e “se chegou cedo”? |
 
 ### C1 — avançado
 
@@ -187,7 +219,17 @@ assim que o Next recarrega e fica revisável no GitHub.
 
 ## 7. Lacunas conhecidas
 
+A avaliação completa, com prioridades P0/P1/P2 e ids sugeridos, está em
+[AVALIACAO-LACUNAS-PLE.md](AVALIACAO-LACUNAS-PLE.md). Resumo:
+
+- **P0 (feito):** X (deixar/próximo), SS, NH/LH, H mudo, acento tônico, ditongo/hiato,
+  mapa dos tempos verbais, voz passiva, discurso indireto, concordância e rotinas de aula.
+- **P1 (próximos):** D/T palatalizado, vogais nasais, Z e R finais, infinitivo pessoal,
+  pronomes oblíquos, regência, `ficar`, falsos cognatos, plano de 50 min, música e jogos.
+- **P2 (futuro):** áudio/IPA, entonação, variedades regionais, gênero e registro digital.
+
+Ressalvas que continuam valendo:
+
 - Ainda não há áudio por frase (IPA e áudio são o plano da Fase 1 do planejamento).
 - Pronúncia aproximada e notas de L1 precisam de revisão de professor nativo.
-- `teaching` e `tip` começaram com 2 entradas cada — ampliar com rotinas de aula.
 - C2 tem apenas 2 entradas; o currículo de C2 ainda não existe no app.

@@ -85,7 +85,7 @@ node scripts/seed-admin.mjs
 ## Apanhado de conhecimento
 
 Em `/professor/biblioteca/apanhado` (menu **Apanhado**) está o índice de consulta rápida do
-professor. São **41 informações** organizadas em três eixos:
+professor. São **72 informações** organizadas em três eixos:
 
 - **Nível:** A0, A1, A2, B1, B2, C1, C2 (A0 é pré-nível pedagógico).
 - **Tipo de conhecimento:** gramática, léxico, fonética/pronúncia, pragmática/registro,
@@ -102,6 +102,13 @@ O botão **“Criar material na biblioteca”** leva o cartão para o formulári
 pronto para revisão e publicação. O acervo é código versionado em
 [`src/lib/domain/knowledge-bank.ts`](src/lib/domain/knowledge-bank.ts); o inventário completo
 está em [`APANHADO-CONHECIMENTO.md`](APANHADO-CONHECIMENTO.md).
+
+Alguns exemplos do que o professor encontra: por que `deixar` soa com CH e `próximo` com S
+(`a1-x-quatro-sons`), a diferença entre SS e S entre vogais (`a1-ss-som-unico`), R/RR
+(`a1-r-inicial`), NH/LH (`a1-nh-lh`), o mapa dos tempos verbais (`b2-mapa-tempos`), voz
+passiva (`b2-voz-passiva`) e concordância (`b2-concordancia-verbal`). As lacunas ainda
+abertas e a priorização P0/P1/P2 estão em
+[`AVALIACAO-LACUNAS-PLE.md`](AVALIACAO-LACUNAS-PLE.md).
 
 ## Estrutura
 
