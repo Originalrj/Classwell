@@ -32,6 +32,8 @@ interface AuthState {
     role: Role
   }) => Promise<void>
   signOut: () => Promise<void>
+  /** Recarrega users/{uid} — usado pela tela de aguardo e pelo admin. */
+  refresh: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -40,6 +42,15 @@ export function homeFor(role: Role | undefined): string {
   if (role === 'teacher' || role === 'admin') return '/professor'
   if (role === 'student') return '/aluno'
   return '/entrar'
+}
+
+/** Destino final, já considerando a aprovação do professor. */
+export function destinationFor(user: UserDoc | null): string {
+  if (!user) return '/entrar'
+  if (user.role === 'teacher' && user.approval === 'pending') {
+    return '/aguardando-aprovacao'
+  }
+  return homeFor(user.role)
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -98,6 +109,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       await createUser(cred.user.uid, {
         role,
+        // Novo professor so entra depois que o admin aprovar.
+        ...(role === 'teacher' ? { approval: 'pending' as const } : {}),
         displayName,
         email,
         locale: 'pt-BR',
@@ -119,6 +132,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [loadProfile],
   )
 
+  const refresh = useCallback(async () => {
+    const fbUser = getFirebaseAuth().currentUser
+    if (!fbUser) {
+      setUser(null)
+      return
+    }
+    await loadProfile(fbUser.uid)
+  }, [loadProfile])
+
   const signOut = useCallback(async () => {
     await fbSignOut(getFirebaseAuth())
     setUser(null)
@@ -126,8 +148,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router])
 
   const value = useMemo<AuthState>(
-    () => ({ user, loading, signIn, signUp, signOut }),
-    [user, loading, signIn, signUp, signOut],
+    () => ({ user, loading, signIn, signUp, signOut, refresh }),
+    [user, loading, signIn, signUp, signOut, refresh],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

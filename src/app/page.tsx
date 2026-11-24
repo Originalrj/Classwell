@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { AuthForm } from '@/components/auth-form'
-import { homeFor, useAuth } from './providers'
+import { destinationFor, useAuth } from './providers'
 import { usingEmulators } from '@/lib/firebase/client'
 
 export default function Home() {
@@ -12,7 +12,7 @@ export default function Home() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && user) router.replace(homeFor(user.role))
+    if (!loading && user) router.replace(destinationFor(user))
   }, [user, loading, router])
 
   if (loading) {

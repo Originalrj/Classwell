@@ -291,6 +291,11 @@ export interface LessonSession {
 export interface UserDoc {
   uid: string
   role: Role
+  /**
+   * Professores novos nascem `pending` e so ganham acesso apos aprovacao do
+   * admin. Contas antigas sem o campo sao tratadas como aprovadas nas regras.
+   */
+  approval?: 'pending' | 'approved'
   displayName: string
   email: string
   photoUrl?: string

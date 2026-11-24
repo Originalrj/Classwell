@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { homeFor, useAuth } from '@/app/providers'
+import { destinationFor, useAuth } from '@/app/providers'
 import type { Role } from '@/lib/types'
 
 type Mode = 'entrar' | 'cadastro'
@@ -38,7 +38,7 @@ export function AuthForm({
 
   // So redireciona quando o perfil existe, nao apenas a credencial do Firebase.
   useEffect(() => {
-    if (!loading && user) router.replace(homeFor(user.role))
+    if (!loading && user) router.replace(destinationFor(user))
   }, [user, loading, router])
 
   function switchMode(next: Mode) {
@@ -107,7 +107,7 @@ export function AuthForm({
         {mode === 'entrar'
           ? 'Entre com sua conta de professor ou de aluno.'
           : role === 'teacher'
-            ? 'Crie sua conta para cadastrar alunos e montar as rampas.'
+            ? 'Crie sua conta para cadastrar alunos e montar as rampas. Um administrador aprova o acesso antes do primeiro login.'
             : 'Crie sua conta de aluno. Seu professor conecta o plano de aula ao seu perfil.'}
       </p>
 

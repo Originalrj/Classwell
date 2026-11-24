@@ -5,20 +5,28 @@ service cloud.firestore {
 
     // ================= helpers =================
     //
-    // Regra de ouro: quando o documento ja carrega o teacherId/studentId,
-    // testar resource.data direto. get() so e necessario quando o dado esta
-    // em OUTRO documento — e get() em contexto de list devolve null, o que
-    // estoura a regra com "Null value error".
+    // Modelo: professores APROVADOS compartilham alunos, rampas e biblioteca.
+    // Nao ha isolamento por teacherId entre professores — isso era uma
+    // exigencia antiga que o produto nao quer mais. O que existe e:
+    //   1) professor novo nasce approval='pending' e nao acessa nada;
+    //   2) so o admin pode aprovar (users/{uid}.approval);
+    //   3) configuracoes pessoais (teachers/{uid}) continuam só do dono/admin;
+    //   4) aluno so acessa o proprio vinculo.
 
     function signedIn() {
       return request.auth != null && request.auth.uid != null;
     }
 
-    // Le SO o papel, null-safe. Evita exists()+ternaria: um unico get(),
-    // e nunca devolve objeto nulo (que quebraria .role).
     function myRole() {
       return signedIn()
         ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', null)
+        : null;
+    }
+
+    // Contas antigas nao tinham o campo: ausencia vale 'approved'.
+    function myApproval() {
+      return signedIn()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('approval', 'approved')
         : null;
     }
 
@@ -30,34 +38,33 @@ service cloud.firestore {
       return myRole() == 'admin';
     }
 
+    function canTeach() {
+      return isAdmin() || (isTeacher() && myApproval() == 'approved');
+    }
+
     function onlyKeysChanged(keys) {
       return request.resource.data.diff(resource.data).affectedKeys()
         .hasOnly(keys);
     }
 
-    // Campo opcional com fallback. Acessar data.campo direto quando a chave
-    // nao existe lanca evaluation error no emulador; data.get() e o
-    // acessor null-safe correto, e NAO e a operacao de leitura de documento.
+    // Acesso null-safe a campos opcionais.
     function field(data, key) {
       return data.get(key, null);
     }
 
-    // Professor dono do documento.
-    function ownedByMe(data) {
-      return isTeacher() && field(data, 'teacherId') == request.auth.uid;
+    function createdByMe(data) {
+      return canTeach() && field(data, 'teacherId') == request.auth.uid;
     }
 
-    // O aluno dono do documento, pelo authUid amarrado no proprio doc.
     function isSelf(data) {
       return signedIn() && field(data, 'authUid') == request.auth.uid;
     }
 
-    // Leitura: professor dono ou o proprio aluno.
+    // Professores aprovados leem tudo; aluno le o que e dele.
     function readable(data) {
-      return ownedByMe(data) || isSelf(data) || isAdmin();
+      return canTeach() || isSelf(data);
     }
 
-    // Submissoes nao carregam authUid; o vinculo e via students/{sid}.authUid.
     function isStudentById(sid) {
       return signedIn()
         && exists(/databases/$(database)/documents/students/$(sid))
@@ -70,17 +77,21 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
       allow create: if signedIn() && request.auth.uid == uid;
-      // Nao deixa mexer no proprio papel (escalada de privilegio).
-      allow update: if signedIn()
-        && request.auth.uid == uid
-        && onlyKeysChanged(['displayName', 'photoUrl', 'locale', 'onboardingStep', 'lastSeenAt']);
+
+      // O usuario nao pode se autoaprovar nem mudar o proprio papel.
+      allow update: if (signedIn()
+          && request.auth.uid == uid
+          && onlyKeysChanged(['displayName', 'photoUrl', 'locale', 'onboardingStep', 'lastSeenAt']))
+        || (isAdmin() && onlyKeysChanged(['approval', 'role']));
+
       allow delete: if false;
     }
 
     match /teachers/{tid} {
-      allow read: if signedIn();
+      // Qualquer professor aprovado pode consultar o colega; so o dono edita.
+      allow read: if signedIn() && (request.auth.uid == tid || canTeach());
       allow create: if signedIn() && request.auth.uid == tid;
-      allow update: if signedIn() && request.auth.uid == tid;
+      allow update: if (signedIn() && request.auth.uid == tid) || isAdmin();
       allow delete: if false;
     }
 
@@ -89,53 +100,52 @@ service cloud.firestore {
     match /students/{sid} {
       allow get: if readable(resource.data);
 
-      // List NAO pode ser liberada por papel: se fosse, qualquer professor
-      // passaria em qualquer documento e uma query filtrada por outro
-      // teacherId vazaria dados. Cada doc e avaliado por posse, entao a
-      // query de outro professor volta vazia.
-      allow list: if ownedByMe(resource.data) || isSelf(resource.data) || isAdmin();
+      // Compartilhado: a query filtrada por outro teacherId agora DEVE trazer
+      // os alunos. O filtro existe para organizacao, nao para seguranca.
+      allow list: if readable(resource.data);
 
-      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
+      // Quem cria vira o responsavel original (proveniencia), mas todos os
+      // professores aprovados podem ler e editar depois.
+      allow create: if canTeach()
+        && request.resource.data.teacherId == request.auth.uid;
 
-      // Professor dono edita tudo, mas nao troca de dono nem de authUid.
-      allow update: if ownedByMe(resource.data)
-        && request.resource.data.get('teacherId', null) == resource.data.get('teacherId', null)
-        && request.resource.data.get('authUid', null) == resource.data.get('authUid', null);
+      allow update: if (canTeach()
+          && request.resource.data.get('teacherId', null) == resource.data.get('teacherId', null)
+          && request.resource.data.get('authUid', null) == resource.data.get('authUid', null))
+        || (isSelf(resource.data)
+          && onlyKeysChanged(['name', 'lastActiveAt', 'notificationPrefs']));
 
-      // Aluno so ajusta o proprio nome e preferencias.
-      allow update: if isSelf(resource.data)
-        && onlyKeysChanged(['name', 'lastActiveAt', 'notificationPrefs']);
-
-      allow delete: if ownedByMe(resource.data);
+      allow delete: if canTeach();
     }
 
     // ================= avaliacoes diagnosticas =================
 
     match /assessments/{aid} {
       allow read: if readable(resource.data);
-      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
-      allow update, delete: if ownedByMe(resource.data);
+      allow create: if canTeach()
+        && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if canTeach();
     }
 
     // ================= rampas =================
 
     match /ramps/{rid} {
       allow read: if readable(resource.data);
-      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
-      allow update, delete: if ownedByMe(resource.data);
+      allow create: if canTeach()
+        && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if canTeach();
     }
 
     match /rampSteps/{stepId} {
       allow read: if readable(resource.data);
 
-      allow create: if isTeacher()
+      allow create: if canTeach()
         && request.resource.data.teacherId == request.auth.uid;
-      allow delete: if ownedByMe(resource.data);
 
-      // Professor dono edita livre.
-      allow update: if ownedByMe(resource.data);
+      allow delete: if canTeach();
 
-      // Aluno so mexe em progresso; nao pode se marcar "done" sozinho.
+      // Professor aprovado edita livre; aluno so toca progresso.
+      allow update: if canTeach();
       allow update: if readable(resource.data)
         && onlyKeysChanged(['progress', 'startedAt']);
     }
@@ -143,21 +153,20 @@ service cloud.firestore {
     // ================= biblioteca =================
 
     match /contents/{cid} {
-      // Professores veem tudo; alunos so o que esta publicado.
-      allow read: if myRole() == 'teacher'
+      // Biblioteca e da plataforma: qualquer professor aprovado ve e edita.
+      // Aluno so ve publicado.
+      allow read: if canTeach()
         || (myRole() == 'student' && resource.data.get('status', null) == 'published');
 
-      allow create: if isTeacher() && request.resource.data.authorId == request.auth.uid;
-      allow update: if (signedIn() && resource.data.authorId == request.auth.uid)
-        || isAdmin(); // moderacao: deprecate / reject
-
-      allow delete: if signedIn()
-        && resource.data.authorId == request.auth.uid
+      allow create: if canTeach()
+        && request.resource.data.authorId == request.auth.uid;
+      allow update: if canTeach();
+      allow delete: if canTeach()
         && resource.data.get('status', null) == 'draft';
     }
 
     match /contentReports/{rid} {
-      allow read: if isTeacher();
+      allow read: if canTeach();
       allow create: if signedIn();
       allow update, delete: if isAdmin();
     }
@@ -166,8 +175,9 @@ service cloud.firestore {
 
     match /tasks/{tid} {
       allow read: if readable(resource.data);
-      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
-      allow update, delete: if ownedByMe(resource.data);
+      allow create: if canTeach()
+        && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if canTeach();
     }
 
     match /taskSubmissions/{subId} {
@@ -176,8 +186,8 @@ service cloud.firestore {
       // Aluno cria a propria entrega.
       allow create: if isStudentById(request.resource.data.studentId);
 
-      // Somente o professor dono devolve nota/feedback.
-      allow update: if ownedByMe(resource.data);
+      // Qualquer professor aprovado devolve nota/feedback.
+      allow update: if canTeach();
 
       allow delete: if false;
     }
@@ -186,22 +196,24 @@ service cloud.firestore {
 
     match /sessions/{sessId} {
       allow read: if readable(resource.data);
-      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
-      allow update, delete: if ownedByMe(resource.data);
+      allow create: if canTeach()
+        && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if canTeach();
     }
 
     // ================= progresso: append-only =================
 
     match /progressEvents/{eid} {
       allow read: if readable(resource.data);
-      allow create: if isTeacher() && request.resource.data.createdBy != 'student';
+      allow create: if canTeach()
+        && request.resource.data.createdBy != 'student';
       allow update, delete: if false;
     }
 
     // ================= banco de itens do diagnostico =================
 
     match /diagnosticItems/{itemId} {
-      allow read: if isTeacher();
+      allow read: if canTeach();
       allow write: if isAdmin();
     }
 
@@ -212,7 +224,7 @@ service cloud.firestore {
       allow update: if signedIn()
         && resource.data.recipientId == request.auth.uid
         && onlyKeysChanged(['readAt']);
-      allow create: if isTeacher();
+      allow create: if canTeach();
       allow delete: if signedIn() && resource.data.recipientId == request.auth.uid;
     }
 

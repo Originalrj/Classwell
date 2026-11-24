@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { homeFor, useAuth } from '@/app/providers'
+import { destinationFor, homeFor, useAuth } from '@/app/providers'
 import ShinyText from '@/components/reactbits/ShinyText'
 
 const NAV = [
@@ -22,6 +22,9 @@ export default function ProfessorLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!loading && !user) router.replace('/entrar')
     if (user && user.role === 'student') router.replace(homeFor(user.role))
+    if (user && user.role === 'teacher' && user.approval === 'pending') {
+      router.replace(destinationFor(user))
+    }
   }, [user, loading, router])
 
   if (loading || !user) {
@@ -31,6 +34,11 @@ export default function ProfessorLayout({ children }: { children: React.ReactNod
       </div>
     )
   }
+
+  const nav =
+    user.role === 'admin'
+      ? [...NAV, { href: '/admin/professores', label: 'Aprovações' }]
+      : NAV
 
   return (
     <div className="min-h-screen">
@@ -49,7 +57,7 @@ export default function ProfessorLayout({ children }: { children: React.ReactNod
           </Link>
 
           <nav className="flex flex-1 items-center gap-1">
-            {NAV.map((item) => {
+            {nav.map((item) => {
               const active =
                 item.href === '/professor'
                   ? pathname === '/professor'

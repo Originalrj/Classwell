@@ -116,6 +116,8 @@ async function main() {
   await setDoc(doc(firestore, 'users', uid), {
     uid,
     role: 'teacher',
+    // Professor de referencia ja aprovado (o admin aprovou no seed/demo).
+    approval: 'approved',
     displayName: 'Ana Teste',
     email,
     locale: 'pt-BR',
@@ -205,41 +207,61 @@ async function main() {
     check('dono le o proprio aluno', false, (e as Error).message.slice(0, 90))
   }
 
-  console.log('\n5. Isolamento entre professores')
+  console.log('\n5. Aprovacao e acesso colaborativo')
   const otherEmail = `outro${Date.now()}@teste.com`
-  const other = await createUserWithEmailAndPassword(auth, otherEmail, 'senha123456')
-  await setDoc(doc(firestore, 'users', other.user.uid), {
-    uid: other.user.uid,
+  const other = await createUserWithEmailAndPassword(auth, otherEmail, password)
+  const otherUid = other.user.uid
+  await setDoc(doc(firestore, 'users', otherUid), {
+    uid: otherUid,
     role: 'teacher',
+    // Novo professor so entra depois da aprovacao do admin.
+    approval: 'pending',
     displayName: 'Bruno',
-    email: other.user.email ?? '',
+    email: otherEmail,
     locale: 'pt-BR',
   })
-  // Leitura negada no emulador chega como excecao (permission-denied),
-  // nao como doc inexistente. Negado = passou.
-  let foreignDenied = false
-  let foreignDetail = ''
-  try {
-    const foreign = await getDoc(doc(firestore, 'students', studentRef.id))
-    foreignDenied = !foreign.exists()
-    foreignDetail = foreign.exists() ? 'vazou!' : ''
-  } catch (e) {
-    foreignDenied = true
-    foreignDetail = `negado (${(e as { code?: string }).code ?? 'erro'})`
-  }
-  check('outro professor NAO le o aluno alheio', foreignDenied, foreignDetail)
 
-  let listEmpty = false
-  let listDetail = ''
+  // Professor pendente nao ve nada da plataforma — leitura negada no
+  // emulador chega como excecao (permission-denied).
+  let pendingDenied = false
   try {
-    const foreignList = await getDocs(listQ)
-    listEmpty = foreignList.size === 0
-    listDetail = `${foreignList.size} documento(s)`
-  } catch (e) {
-    listEmpty = true
-    listDetail = `negado (${(e as { code?: string }).code ?? 'erro'})`
+    await getDoc(doc(firestore, 'students', studentRef.id))
+  } catch {
+    pendingDenied = true
   }
-  check('lista do outro professor volta vazia', listEmpty, listDetail)
+  check('professor pendente NAO le alunos', pendingDenied)
+
+  // E nao pode se autoaprovar: so admin altera users/{uid}.approval.
+  let selfApproveBlocked = false
+  try {
+    await updateDoc(doc(firestore, 'users', otherUid), { approval: 'approved' })
+  } catch {
+    selfApproveBlocked = true
+  }
+  check('professor pendente nao se autoaprova', selfApproveBlocked)
+
+  // O admin aprova.
+  const adminEmail = `admin${Date.now()}@teste.com`
+  const admin = await createUserWithEmailAndPassword(auth, adminEmail, password)
+  await setDoc(doc(firestore, 'users', admin.user.uid), {
+    uid: admin.user.uid,
+    role: 'admin',
+    approval: 'approved',
+    displayName: 'Admin Rampa',
+    email: adminEmail,
+    locale: 'pt-BR',
+  })
+  await signInWithEmailAndPassword(auth, adminEmail, password)
+  await updateDoc(doc(firestore, 'users', otherUid), { approval: 'approved' })
+  const approved = (await getDoc(doc(firestore, 'users', otherUid))).data()
+  check('admin aprova o professor', approved?.approval === 'approved', String(approved?.approval))
+
+  // Agora, como professor aprovado, o colega compartilha alunos e biblioteca.
+  await signInWithEmailAndPassword(auth, otherEmail, password)
+  const sharedStudent = await getDoc(doc(firestore, 'students', studentRef.id))
+  check('professor aprovado le aluno do colega', sharedStudent.exists(), sharedStudent.exists() ? 'ok' : 'nao achou')
+  const sharedList = await getDocs(listQ)
+  check('lista compartilhada traz o aluno do colega', sharedList.size >= 1, `${sharedList.size} documento(s)`)
 
   // A avaliacao foi gravada pelo professor dono; volta pro dono, nao pro outro.
   console.log('\n6. Gravacao do diagnostico')
@@ -472,16 +494,17 @@ async function main() {
   const edited = (await getDoc(goodRef)).data() as { qualityScore?: number }
   check('autor edita o proprio material', edited?.qualityScore === 0.9, String(edited?.qualityScore))
 
-  let foreignEditBlocked = false
-  try {
-    await signInWithEmailAndPassword(auth, otherEmail, password)
-    await updateDoc(goodRef, { title: ' sequestrado' })
-  } catch {
-    foreignEditBlocked = true
-  }
-  check('outro professor nao edita material alheio', foreignEditBlocked, 'editou!')
+  // Biblioteca e colaborativa: qualquer professor aprovado pode editar.
+  await signInWithEmailAndPassword(auth, otherEmail, password)
+  await updateDoc(goodRef, { title: 'Dialogo: um almoco em Sao Paulo (revisado)' })
+  const editedByPeer = (await getDoc(goodRef)).data() as { title?: string }
+  check(
+    'professor aprovado edita material do colega',
+    Boolean(editedByPeer?.title?.includes('revisado')),
+    String(editedByPeer?.title),
+  )
 
-  console.log('\n8. Isolamento de conteudo apos troca de sessao')
+  console.log('\n8. Biblioteca apos troca de sessao')
   const afterSwitch = await getDocs(
     query(collection(firestore, 'contents'), orderBy('createdAt', 'desc')),
   )

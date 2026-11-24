@@ -63,6 +63,25 @@ npm run seed:all
 O login/cadastro (professor ou aluno) fica **na tela inicial** e também em `/entrar`, com
 o mesmo formulário. O aluno autenticado é levado para `/aluno`.
 
+## Aprovação de professores e admin
+
+Qualquer pessoa pode se cadastrar como professor, mas a conta nasce como
+`approval: 'pending'` e cai em `/aguardando-aprovacao`. Somente o administrador pode
+aprovar, em `/admin/professores` (menu **Aprovações** do painel, visível só para admin).
+Contas antigas sem o campo `approval` continuam valendo como aprovadas.
+
+Depois de aprovados, os professores **compartilham** alunos, rampas e biblioteca — não
+existe mais isolamento por `teacherId`. Configurações pessoais (`teachers/{uid}`) continuam
+sendo editáveis apenas pelo dono ou pelo admin.
+
+A conta admin local é criada via variáveis de ambiente (a senha nunca entra no repositório):
+
+```bash
+$env:ADMIN_EMAIL = "seu@email.com"
+$env:ADMIN_PASSWORD = "senha-temporaria"
+node scripts/seed-admin.mjs
+```
+
 ## Apanhado de conhecimento
 
 Em `/professor/biblioteca/apanhado` (menu **Apanhado**) está o índice de consulta rápida do
@@ -95,7 +114,8 @@ está em [`APANHADO-CONHECIMENTO.md`](APANHADO-CONHECIMENTO.md).
 - `scripts/seed-a1.ts` … `seed-c1.ts` — as 24 aulas-base em markdown.
 - `scripts/seed-biblioteca.ts` — publica as aulas na coleção `contents`.
 - `scripts/seed-demo.mjs` — cria professor, aluna e avaliação de demonstração.
-- `scripts/verify.ts` — verificação automática da spec (`npm run verify`).
+- `scripts/seed-admin.mjs` — cria o admin a partir de `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
+- `scripts/verify.ts` — verificação automática da spec (`npm run verify`), incluindo o gate de aprovação.
 - `SPEC.md` — especificação do produto.
 
 ## Verificação

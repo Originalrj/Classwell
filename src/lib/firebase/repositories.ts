@@ -36,6 +36,7 @@ import type {
 } from '@/lib/types'
 
 const students = () => collection(getFirebaseDb(), 'students')
+const users = () => collection(getFirebaseDb(), 'users')
 
 function toDate(value: unknown): Date {
   if (value instanceof Date) return value
@@ -96,6 +97,21 @@ export async function getUser(uid: string): Promise<UserDoc | null> {
   return { ...data, uid: data.uid ?? uid }
 }
 
+/** Professores cadastrados, para a tela de aprovacoes do admin. */
+export async function listTeachers(): Promise<UserDoc[]> {
+  const q = query(users(), where('role', '==', 'teacher'), orderBy('displayName'))
+  const snap = await getDocs(q)
+  return snap.docs.map((d) => {
+    const data = d.data() as UserDoc
+    return { ...data, uid: data.uid ?? d.id }
+  })
+}
+
+/** So o admin pode aprovar — as regras negam qualquer outra tentativa. */
+export async function approveTeacher(uid: string): Promise<void> {
+  await updateDoc(doc(users(), uid), { approval: 'approved' })
+}
+
 export async function ensureTeacherDoc(
   uid: string,
   data: Record<string, unknown>,
@@ -121,12 +137,16 @@ export interface CreateStudentInput {
   profile: StudentProfile
 }
 
-export async function listStudents(teacherId: string, max = 100): Promise<Student[]> {
+/**
+ * Lista alunos. Sem `teacherId` traz a lista compartilhada da plataforma —
+ * professores aprovados veem os alunos uns dos outros.
+ */
+export async function listStudents(teacherId?: string, max = 100): Promise<Student[]> {
+  const constraints = [orderBy('createdAt', 'desc'), limit(max)]
   const q = query(
     students(),
-    where('teacherId', '==', teacherId),
-    orderBy('createdAt', 'desc'),
-    limit(max),
+    ...(teacherId ? [where('teacherId', '==', teacherId)] : []),
+    ...constraints,
   )
   const snap = await getDocs(q)
   return snap.docs.map((d) => mapStudent(d.id, d.data() as Record<string, unknown>))

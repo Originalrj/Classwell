@@ -46,6 +46,7 @@ await updateProfile(cred.user, { displayName: 'Professora Demo' })
 await setDoc(doc(db, 'users', uid), {
   uid,
   role: 'teacher',
+  approval: 'approved',
   displayName: 'Professora Demo',
   email: 'professor@demo.com',
   locale: 'pt-BR',
